@@ -1,8 +1,6 @@
 package com.generation.carona_api.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -11,12 +9,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -27,111 +27,75 @@ public class Viagem {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@NotBlank(message = "O atributo tipo titulo é obrigatório!")
-	@Size(min = 3, max = 80, message = "O atributo tipo deve ter no mínimo 3 e no máximo 80 caracter obrigatório")
+	@NotBlank(message = "O atributo partida é obrigatório!")
+	@Size(min = 3, max = 80, message = "O atributo partida deve ter no mínimo 3 e no máximo 80 caracteres")
 	@Column(length = 80)
 	private String partida;
 
-	@NotBlank(message = "O atributo tipo titulo é obrigatório!")
-	@Size(min = 3, max = 80, message = "O atributo tipo deve ter no mínimo 3 e no máximo 80 caracter obrigatório")
+	@NotBlank(message = "O atributo destino é obrigatório!")
+	@Size(min = 3, max = 80, message = "O atributo destino deve ter no mínimo 3 e no máximo 80 caracteres")
 	@Column(length = 80)
 	private String destino;
 
-	@FutureOrPresent(message = "A data deve ser futura")
+	@FutureOrPresent(message = "A data deve ser futura ou presente")
 	@NotNull
 	private LocalDateTime data;
 
-	@PositiveOrZero
-	@NotNull(message = "O atributo valorKm é obrigatório!")
-	@Column(precision = 4, scale = 2)
-	private BigDecimal distanciaKm;
-
-	@PositiveOrZero
+	@Min(value = 0, message = "A distância não pode ser negativa")
 	@NotNull(message = "O atributo distanciaKm é obrigatório!")
-	@Column(precision = 7, scale = 2)
+	@Column
+	private Double distanciaKm;
+
+	@Min(value = 0, message = "O tempo estimado não pode ser negativo")
+	@NotNull(message = "O atributo tempoEstimadoMin é obrigatório!")
+	@Column
 	private Double tempoEstimadoMin;
 
-	@PositiveOrZero
-	@NotNull(message = "O atributo distanciaKm é obrigatório!")
-	@Column(precision = 7, scale = 2)
+	@Min(value = 0, message = "O valor da viagem não pode ser negativo")
+	@NotNull(message = "O atributo valorKm é obrigatório!")
+	@Column
 	private Double valorKm;
 
-	@PositiveOrZero
+	@Min(value = 0, message = "A velocidade média não pode ser negativa")
 	@NotNull(message = "O atributo velocidadeMedia é obrigatório!")
 	@Column
 	private Integer velocidadeMedia;
 
-	@PositiveOrZero
+	@Min(value = -90, message = "A latitude de partida mínima é -90")
+	@Max(value = 90, message = "A latitude de partida máxima é 90")
 	@NotNull(message = "A latitude de partida é obrigatória!")
-	@Column(precision = 9, scale = 6)
+	@Column
 	private Double latitudePartida;
 
-	@PositiveOrZero
+	@Min(value = -90, message = "A latitude de destino mínima é -90")
+	@Max(value = 90, message = "A latitude de destino máxima é 90")
 	@NotNull(message = "A latitude de destino é obrigatória!")
-	@Column(precision = 9, scale = 6)
+	@Column
 	private Double latitudeDestino;
 
-	@PositiveOrZero
+	@Min(value = -180, message = "A longitude de partida mínima é -180")
+	@Max(value = 180, message = "A longitude de partida máxima é 180")
 	@NotNull(message = "A longitude de partida é obrigatória!")
-	@Column(precision = 9, scale = 6)
+	@Column
 	private Double longitudePartida;
 
-	@PositiveOrZero
+	@Min(value = -180, message = "A longitude de destino mínima é -180")
+	@Max(value = 180, message = "A longitude de destino máxima é 180")
 	@NotNull(message = "A longitude de destino é obrigatória!")
-	@Column(precision = 9, scale = 6)
+	@Column
 	private Double longitudeDestino;
 	
+	@ManyToOne
+	@JoinColumn(name = "usuario_id")
+	@JsonIgnoreProperties(value = "viagem", allowSetters = true)
+	private Usuario usuario;
 
 	@ManyToOne
-	@Column(name = "usuario_id")
+	@JoinColumn(name = "veiculo_id")
 	@JsonIgnoreProperties(value = "viagem", allowSetters = true)
-	private List<Usuario> usuario;
+	private Veiculo veiculo;
 
-	@ManyToOne
-	@Column(name = "veiculo_id")
-	@JsonIgnoreProperties(value = "viagem", allowSetters = true)
-	private List<Veiculo> veiculo;
-
-	public Double getLatitudePartida() {
-		return latitudePartida;
-	}
-
-	public void setLatitudePartida(Double latitudePartida) {
-		this.latitudePartida = latitudePartida;
-	}
-
-	public Double getLatitudeDestino() {
-		return latitudeDestino;
-	}
-
-	public void setLatitudeDestino(Double latitudeDestino) {
-		this.latitudeDestino = latitudeDestino;
-	}
-
-	public Double getLongitudePartida() {
-		return longitudePartida;
-	}
-
-	public void setLongitudePartida(Double longitudePartida) {
-		this.longitudePartida = longitudePartida;
-	}
-
-	public Double getLongitudeDestino() {
-		return longitudeDestino;
-	}
-
-	public void setLongitudeDestino(Double longitudeDestino) {
-		this.longitudeDestino = longitudeDestino;
-	}
-
-	public Integer getVelocidadeMedia() {
-		return velocidadeMedia;
-	}
-
-	public void setVelocidadeMedia(Integer velocidadeMedia) {
-		this.velocidadeMedia = velocidadeMedia;
-	}
-
+	// --- Getters e Setters ---
 
 	public Long getId() {
 		return id;
@@ -165,11 +129,11 @@ public class Viagem {
 		this.data = data;
 	}
 
-	public BigDecimal getDistanciaKm() {
+	public Double getDistanciaKm() {
 		return distanciaKm;
 	}
 
-	public void setDistanciaKm(BigDecimal distanciaKm) {
+	public void setDistanciaKm(Double distanciaKm) {
 		this.distanciaKm = distanciaKm;
 	}
 
@@ -189,20 +153,59 @@ public class Viagem {
 		this.valorKm = valorKm;
 	}
 
-	public List<Usuario> getUsuario() {
+	public Integer getVelocidadeMedia() {
+		return velocidadeMedia;
+	}
+
+	public void setVelocidadeMedia(Integer velocidadeMedia) {
+		this.velocidadeMedia = velocidadeMedia;
+	}
+
+	public Double getLatitudePartida() {
+		return latitudePartida;
+	}
+
+	public void setLatitudePartida(Double latitudePartida) {
+		this.latitudePartida = latitudePartida;
+	}
+
+	public Double getLatitudeDestino() {
+		return latitudeDestino;
+	}
+
+	public void setLatitudeDestino(Double latitudeDestino) {
+		this.latitudeDestino = latitudeDestino;
+	}
+
+	public Double getLongitudePartida() {
+		return longitudePartida;
+	}
+
+	public void setLongitudePartida(Double longitudePartida) {
+		this.longitudePartida = longitudePartida;
+	}
+
+	public Double getLongitudeDestino() {
+		return longitudeDestino;
+	}
+
+	public void setLongitudeDestino(Double longitudeDestino) {
+		this.longitudeDestino = longitudeDestino;
+	}
+
+	public Usuario getUsuario() {
 		return usuario;
 	}
 
-	public void setUsuario(List<Usuario> usuario) {
+	public void setUsuario(Usuario usuario) {
 		this.usuario = usuario;
 	}
 
-	public List<Veiculo> getVeiculo() {
+	public Veiculo getVeiculo() {
 		return veiculo;
 	}
 
-	public void setVeiculo(List<Veiculo> veiculo) {
+	public void setVeiculo(Veiculo veiculo) {
 		this.veiculo = veiculo;
 	}
-
 }

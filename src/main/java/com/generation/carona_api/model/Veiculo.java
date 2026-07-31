@@ -1,5 +1,7 @@
 package com.generation.carona_api.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
@@ -46,7 +48,7 @@ public class Veiculo {
 
 	@OneToMany
 	@JsonIgnoreProperties("veiculo")
-	private Viagem viagem;
+	private List<Viagem> viagem;
 
 	public Long getId() {
 		return id;
@@ -96,12 +98,13 @@ public class Veiculo {
 		this.capacidade = capacidade;
 	}
 
-	public Viagem getViagem() {
+	public List<Viagem> getViagem() {
 		return viagem;
 	}
 
-	public void setViagem(Viagem viagem) {
+	public void setViagem(List<Viagem> viagem) {
 		this.viagem = viagem;
 	}
+	
 
 }
