@@ -48,10 +48,9 @@ public class ViagemController {
     @PostMapping
     public ResponseEntity<Viagem> post(@Valid @RequestBody Viagem viagem) {
      
-        Viagem viagemCalculada = viagemService.calcularEntrega(viagem);
-        
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(viagemRepository.save(viagemCalculada));
+    	Viagem viagemCalculada = viagemService.calcularEntrega(viagem);
+    	return ResponseEntity.status(HttpStatus.CREATED)
+    	        .body(viagemRepository.save(viagemCalculada));
     }
 
     @PutMapping

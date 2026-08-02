@@ -108,7 +108,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-restclient</artifactId>
 		</dependency>
-		
+		<!-- Dependências da API das coordenadas -->
+		<dependency>
+		    <groupId>com.byteowls</groupId>
+		    <artifactId>jopencage</artifactId>
+		    <version>1.4.0</version>
+		</dependency>
 		<!-- Testes Spring Boot com exclusão do mockito-core para evitar conflitos -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

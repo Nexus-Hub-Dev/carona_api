@@ -41,47 +41,47 @@ public class Viagem {
 	@NotNull
 	private LocalDateTime data;
 
-	@Min(value = 0, message = "A distância não pode ser negativa")
-	@NotNull(message = "O atributo distanciaKm é obrigatório!")
+	//@Min(value = 0, message = "A distância não pode ser negativa")
+	//@NotNull(message = "O atributo distanciaKm é obrigatório!")
 	@Column
 	private Double distanciaKm;
 
-	@Min(value = 0, message = "O tempo estimado não pode ser negativo")
-	@NotNull(message = "O atributo tempoEstimadoMin é obrigatório!")
+	//@Min(value = 0, message = "O tempo estimado não pode ser negativo")
+	//@NotNull(message = "O atributo tempoEstimadoMin é obrigatório!")
 	@Column
 	private Double tempoEstimadoMin;
 
-	@Min(value = 0, message = "O valor da viagem não pode ser negativo")
-	@NotNull(message = "O atributo valorKm é obrigatório!")
+	//@Min(value = 0, message = "O valor da viagem não pode ser negativo")
+	//@NotNull(message = "O atributo valorKm é obrigatório!")
 	@Column
 	private Double valorKm;
 
-	@Min(value = 0, message = "A velocidade média não pode ser negativa")
-	@NotNull(message = "O atributo velocidadeMedia é obrigatório!")
+	//@Min(value = 0, message = "A velocidade média não pode ser negativa")
+	//@NotNull(message = "O atributo velocidadeMedia é obrigatório!")
 	@Column
 	private Integer velocidadeMedia;
 
-	@Min(value = -90, message = "A latitude de partida mínima é -90")
-	@Max(value = 90, message = "A latitude de partida máxima é 90")
-	@NotNull(message = "A latitude de partida é obrigatória!")
+	//@Min(value = -90, message = "A latitude de partida mínima é -90")
+	//@Max(value = 90, message = "A latitude de partida máxima é 90")
+	//@NotNull(message = "A latitude de partida é obrigatória!")
 	@Column
 	private Double latitudePartida;
 
-	@Min(value = -90, message = "A latitude de destino mínima é -90")
-	@Max(value = 90, message = "A latitude de destino máxima é 90")
-	@NotNull(message = "A latitude de destino é obrigatória!")
+	//@Min(value = -90, message = "A latitude de destino mínima é -90")
+	//@Max(value = 90, message = "A latitude de destino máxima é 90")
+	//@NotNull(message = "A latitude de destino é obrigatória!")
 	@Column
 	private Double latitudeDestino;
 
-	@Min(value = -180, message = "A longitude de partida mínima é -180")
-	@Max(value = 180, message = "A longitude de partida máxima é 180")
-	@NotNull(message = "A longitude de partida é obrigatória!")
+	//@Min(value = -180, message = "A longitude de partida mínima é -180")
+	//@Max(value = 180, message = "A longitude de partida máxima é 180")
+	//@NotNull(message = "A longitude de partida é obrigatória!")
 	@Column
 	private Double longitudePartida;
 
-	@Min(value = -180, message = "A longitude de destino mínima é -180")
-	@Max(value = 180, message = "A longitude de destino máxima é 180")
-	@NotNull(message = "A longitude de destino é obrigatória!")
+	//@Min(value = -180, message = "A longitude de destino mínima é -180")
+	//@Max(value = 180, message = "A longitude de destino máxima é 180")
+	//@NotNull(message = "A longitude de destino é obrigatória!")
 	@Column
 	private Double longitudeDestino;
 	
