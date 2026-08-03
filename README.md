@@ -63,5 +63,5 @@ com.generation.carona_api
 
 ---
 
-Desenvolvido por [Higormu2](https://github.com/Higormu2) - [Nayara](https://github.com/nayarabastos) - [Edson](https://github.com/dinhovdp) - [Guilherme](https://github.com/guitxc)
+Desenvolvido por [Higormu2](https://github.com/Higormu2) - [Nayara](https://github.com/nayarabastos) - [Edson](https://github.com/dinhovdp) - [Guilherme](https://github.com/guitxc) - 
 [João Victor](https://github.com/jvribe) - [Paula](https://github.com/paularegina396-ai) - [Thais](https://github.com/ThaisSantanaa) )
