@@ -1,78 +1,115 @@
 package com.generation.carona_api.controller;
 
-import com.generation.carona_api.model.Viagem;
-import com.generation.carona_api.repository.ViagemRepository;
-import com.generation.carona_api.service.ViagemService;
-import jakarta.validation.Valid;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import com.generation.carona_api.model.Usuario;
+import com.generation.carona_api.model.Veiculo;
+import com.generation.carona_api.model.Viagem;
+import com.generation.carona_api.repository.UsuarioRepository;
+import com.generation.carona_api.repository.VeiculoRepository;
+import com.generation.carona_api.repository.ViagemRepository;
+import com.generation.carona_api.service.ViagemMapsService;
+import com.generation.carona_api.service.ViagemService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/viagens")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ViagemController {
 
-    @Autowired
-    private ViagemRepository viagemRepository;
+	@Autowired
+	private ViagemRepository viagemRepository;
 
-    @Autowired
-    private ViagemService viagemService;
+	@Autowired
+	private ViagemService viagemService;
 
-    @GetMapping
-    public ResponseEntity<List<Viagem>> getAll() {
-        return ResponseEntity.ok(viagemRepository.findAll());
-    }
+	private final ViagemMapsService viagemMapsService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Viagem> getById(@PathVariable Long id) {
-        return viagemRepository.findById(id)
-                .map(resposta -> ResponseEntity.ok(resposta))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-    }
+	private UsuarioRepository usuarioRepository;
 
-    @GetMapping("/partida/{partida}")
-    public ResponseEntity<List<Viagem>> getByPartida(@PathVariable String partida) {
-        return ResponseEntity.ok(viagemRepository.findAllByPartidaContainingIgnoreCase(partida));
-    }
+	private VeiculoRepository veiculoRepository;
 
-    @GetMapping("/destino/{destino}")
-    public ResponseEntity<List<Viagem>> getByDestino(@PathVariable String destino) {
-        return ResponseEntity.ok(viagemRepository.findAllByDestinoContainingIgnoreCase(destino));
-    }
+	public ViagemController(ViagemRepository viagemRepository, ViagemService viagemService,
+			ViagemMapsService viagemMapsService, UsuarioRepository usuarioRepository,
+            VeiculoRepository veiculoRepository) {
+		this.viagemRepository = viagemRepository;
+		this.viagemService = viagemService;
+		this.viagemMapsService = viagemMapsService;
+		this.usuarioRepository = usuarioRepository;
+		this.veiculoRepository = veiculoRepository;
+	}
 
-    @PostMapping
-    public ResponseEntity<Viagem> post(@Valid @RequestBody Viagem viagem) {
-     
-        Viagem viagemCalculada = viagemService.calcularEntrega(viagem);
-        
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(viagemRepository.save(viagemCalculada));
-    }
+	@GetMapping
+	public ResponseEntity<List<Viagem>> getAll() {
+		return ResponseEntity.ok(viagemRepository.findAll());
+	}
 
-    @PutMapping
-    public ResponseEntity<Viagem> put(@Valid @RequestBody Viagem viagem) {
-        if (viagem.getId() == null || !viagemRepository.existsById(viagem.getId())) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+	@GetMapping("/{id}")
+	public ResponseEntity<Viagem> getById(@PathVariable Long id) {
+		return viagemRepository.findById(id).map(resposta -> ResponseEntity.ok(resposta))
+				.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+	}
 
-        // 
-        Viagem viagemCalculada = viagemService.calcularEntrega(viagem);
+	@GetMapping("/partida/{partida}")
+	public ResponseEntity<List<Viagem>> getByPartida(@PathVariable String partida) {
+		return ResponseEntity.ok(viagemRepository.findAllByPartidaContainingIgnoreCase(partida));
+	}
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(viagemRepository.save(viagemCalculada));
-    }
+	@GetMapping("/destino/{destino}")
+	public ResponseEntity<List<Viagem>> getByDestino(@PathVariable String destino) {
+		return ResponseEntity.ok(viagemRepository.findAllByDestinoContainingIgnoreCase(destino));
+	}
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        if (!viagemRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Viagem não encontrada.");
-        }
-        viagemRepository.deleteById(id);
-    }
+	@PostMapping
+	public ResponseEntity<Viagem> cadastrar(@Valid @RequestBody Viagem viagem) {
+		Usuario usuarioCompleto = usuarioRepository.findById(viagem.getUsuario().getId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuário não encontrado"));
+		Veiculo veiculoCompleto = veiculoRepository.findById(viagem.getVeiculo().getId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Veículo não encontrado"));
+
+		viagem.setUsuario(usuarioCompleto);
+		viagem.setVeiculo(veiculoCompleto);
+
+		viagemMapsService.preencherDadosRota(viagem);
+		Viagem viagemSalva = viagemRepository.save(viagem);
+		return ResponseEntity.status(HttpStatus.CREATED).body(viagemSalva);
+	}
+
+	@PutMapping
+	public ResponseEntity<Viagem> put(@Valid @RequestBody Viagem viagem) {
+		if (viagem.getId() == null || !viagemRepository.existsById(viagem.getId())) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
+
+		viagemMapsService.preencherDadosRota(viagem);
+		//
+		Viagem viagemCalculada = viagemService.calcularEntrega(viagem);
+
+		return ResponseEntity.status(HttpStatus.OK).body(viagemRepository.save(viagemCalculada));
+	}
+
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void delete(@PathVariable Long id) {
+		if (!viagemRepository.existsById(id)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Viagem não encontrada.");
+		}
+		viagemRepository.deleteById(id);
+	}
 }

@@ -13,7 +13,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -41,13 +40,11 @@ public class Viagem {
 	@NotNull
 	private LocalDateTime data;
 
-	@Min(value = 0, message = "A distância não pode ser negativa")
-	@NotNull(message = "O atributo distanciaKm é obrigatório!")
+	
 	@Column
 	private Double distanciaKm;
 
-	@Min(value = 0, message = "O tempo estimado não pode ser negativo")
-	@NotNull(message = "O atributo tempoEstimadoMin é obrigatório!")
+
 	@Column
 	private Double tempoEstimadoMin;
 
@@ -61,27 +58,19 @@ public class Viagem {
 	@Column
 	private Integer velocidadeMedia;
 
-	@Min(value = -90, message = "A latitude de partida mínima é -90")
-	@Max(value = 90, message = "A latitude de partida máxima é 90")
-	@NotNull(message = "A latitude de partida é obrigatória!")
+	
 	@Column
 	private Double latitudePartida;
 
-	@Min(value = -90, message = "A latitude de destino mínima é -90")
-	@Max(value = 90, message = "A latitude de destino máxima é 90")
-	@NotNull(message = "A latitude de destino é obrigatória!")
+	
 	@Column
 	private Double latitudeDestino;
 
-	@Min(value = -180, message = "A longitude de partida mínima é -180")
-	@Max(value = 180, message = "A longitude de partida máxima é 180")
-	@NotNull(message = "A longitude de partida é obrigatória!")
+	
 	@Column
 	private Double longitudePartida;
 
-	@Min(value = -180, message = "A longitude de destino mínima é -180")
-	@Max(value = 180, message = "A longitude de destino máxima é 180")
-	@NotNull(message = "A longitude de destino é obrigatória!")
+	
 	@Column
 	private Double longitudeDestino;
 	
