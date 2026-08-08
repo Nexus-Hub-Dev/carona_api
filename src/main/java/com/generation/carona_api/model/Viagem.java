@@ -48,13 +48,9 @@ public class Viagem {
 	@Column
 	private Double tempoEstimadoMin;
 
-	@Min(value = 0, message = "O valor da viagem não pode ser negativo")
-	@NotNull(message = "O atributo valorKm é obrigatório!")
 	@Column
 	private Double valorKm;
 
-	@Min(value = 0, message = "A velocidade média não pode ser negativa")
-	@NotNull(message = "O atributo velocidadeMedia é obrigatório!")
 	@Column
 	private Integer velocidadeMedia;
 
