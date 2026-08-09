@@ -36,7 +36,7 @@ public class ViagemService {
         // Setando os valores formatados no objeto Viagem
         viagem.setDistanciaKm(distanciaArredondada);
         viagem.setTempoEstimadoMin(tempoArredondado);
-        viagem.setValorKm(valorArredondado);
+        viagem.setValorTotal(valorArredondado);
 
         return viagem;
     }
