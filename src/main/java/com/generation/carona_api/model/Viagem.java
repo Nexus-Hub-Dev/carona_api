@@ -49,7 +49,7 @@ public class Viagem {
 	private Double tempoEstimadoMin;
 
 	@Column
-	private Double valorKm;
+	private Double valorTotal;
 
 	@Column
 	private Integer velocidadeMedia;
@@ -130,12 +130,12 @@ public class Viagem {
 		this.tempoEstimadoMin = tempoEstimadoMin;
 	}
 
-	public Double getValorKm() {
-		return valorKm;
+	public Double getValorTotal() {
+		return valorTotal;
 	}
 
-	public void setValorKm(Double valorKm) {
-		this.valorKm = valorKm;
+	public void setValorTotal(Double valorTotal) {
+		this.valorTotal = valorTotal;
 	}
 
 	public Integer getVelocidadeMedia() {
