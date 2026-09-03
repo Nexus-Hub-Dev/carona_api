@@ -10,4 +10,5 @@ import com.generation.carona_api.model.Veiculo;
 public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
 	public List<Veiculo> findAllByModeloContainingIgnoreCase(String modelo);
 	public Optional<Veiculo> findByPlacaIgnoreCase(String placa);
+	public List<Veiculo> findAllByAcessivelPcdTrue();
 }

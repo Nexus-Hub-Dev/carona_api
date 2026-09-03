@@ -46,6 +46,9 @@ public class Veiculo {
 	@NotNull(message = "O atributo capacidade é obrigatório! Digite quantos lugares disponíveis o carro tem")
 	private int capacidade;
 
+	@NotNull(message = "O atributo acessivelPcd é obrigatório!")
+	private Boolean acessivelPcd;
+
 	@OneToMany
 	@JsonIgnoreProperties("veiculo")
 	private List<Viagem> viagem;
@@ -98,6 +101,14 @@ public class Veiculo {
 		this.capacidade = capacidade;
 	}
 
+	public Boolean getAcessivelPcd() {
+		return acessivelPcd;
+	}
+
+	public void setAcessivelPcd(Boolean acessivelPcd) {
+		this.acessivelPcd = acessivelPcd;
+	}
+
 	public List<Viagem> getViagem() {
 		return viagem;
 	}
@@ -105,6 +116,4 @@ public class Veiculo {
 	public void setViagem(List<Viagem> viagem) {
 		this.viagem = viagem;
 	}
-	
-
 }

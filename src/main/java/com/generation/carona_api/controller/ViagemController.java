@@ -47,7 +47,7 @@ public class ViagemController {
 
 	public ViagemController(ViagemRepository viagemRepository, ViagemService viagemService,
 			ViagemMapsService viagemMapsService, UsuarioRepository usuarioRepository,
-            VeiculoRepository veiculoRepository) {
+			VeiculoRepository veiculoRepository) {
 		this.viagemRepository = viagemRepository;
 		this.viagemService = viagemService;
 		this.viagemMapsService = viagemMapsService;
@@ -76,6 +76,16 @@ public class ViagemController {
 		return ResponseEntity.ok(viagemRepository.findAllByDestinoContainingIgnoreCase(destino));
 	}
 
+	@GetMapping("/mulheres")
+	public ResponseEntity<List<Viagem>> getByApenasMulheres() {
+		return ResponseEntity.ok(viagemRepository.findAllByApenasMulheresTrue());
+	}
+
+	@GetMapping("/pcd")
+	public ResponseEntity<List<Viagem>> getByAcessivelPcd() {
+		return ResponseEntity.ok(viagemRepository.findAllByVeiculoAcessivelPcdTrue());
+	}
+
 	@PostMapping
 	public ResponseEntity<Viagem> cadastrar(@Valid @RequestBody Viagem viagem) {
 		Usuario usuarioCompleto = usuarioRepository.findById(viagem.getUsuario().getId())
@@ -98,7 +108,6 @@ public class ViagemController {
 		}
 
 		viagemMapsService.preencherDadosRota(viagem);
-		//
 		Viagem viagemCalculada = viagemService.calcularEntrega(viagem);
 
 		return ResponseEntity.status(HttpStatus.OK).body(viagemRepository.save(viagemCalculada));

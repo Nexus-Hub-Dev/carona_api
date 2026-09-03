@@ -49,11 +49,14 @@ public class Usuario {
 	@Size(max = 5000, message = "O link da foto não pode ser maior do que 5000 caracteres")
 	@Column(length = 5000)
 	private String foto;
+
+	@NotBlank(message = "O Atributo Gênero é Obrigatório!")
+	@Column(length = 50)
+	private String genero;
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "usuario", cascade = CascadeType.REMOVE)
 	@JsonIgnoreProperties(value = "usuario", allowSetters = true)
 	private List<Viagem> viagem;
-
 
 	public String getCelular() {
 		return celular;
@@ -103,14 +106,19 @@ public class Usuario {
 		this.foto = foto;
 	}
 
+	public String getGenero() {
+		return genero;
+	}
+
+	public void setGenero(String genero) {
+		this.genero = genero;
+	}
+
 	public List<Viagem> getViagem() {
 		return viagem;
 	}
 
 	public void setViagem(List<Viagem> viagem) {
 		this.viagem = viagem;
-	}
-	
-	
-
+	}	
 }
