@@ -1,11 +1,14 @@
 package com.generation.carona_api.service;
 
-import com.fasterxml.jackson.databind.JsonNode; 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.generation.carona_api.dto.AddressResult;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.util.retry.Retry;
+
+import java.time.Duration;
 
 @Service
 public class NominatimService {
@@ -18,8 +21,8 @@ public class NominatimService {
 
     public AddressResult geocodificar(String endereco) {
         try {
-            // Pausa de segurança de 1 segundo para respeitar a política de uso do Nominatim (max 1 req/sec)
-            Thread.sleep(1000);
+            // Pausa de 1.5s para garantir que partida e destino não colidam no rate-limit
+            Thread.sleep(1500);
 
             JsonNode response = nominatimWebClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -30,6 +33,9 @@ public class NominatimService {
                             .build())
                     .retrieve()
                     .bodyToMono(JsonNode.class)
+                    // Se o Nominatim responder 429, aguarda 2s e tenta novamente (até 3x) de forma transparente
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
+                            .filter(throwable -> throwable instanceof WebClientResponseException.TooManyRequests))
                     .block();
 
             if (response == null || !response.isArray() || response.isEmpty()) {
@@ -43,11 +49,11 @@ public class NominatimService {
                     item.get("lon").asDouble()
             );
 
-        } catch (WebClientResponseException.TooManyRequests e) {
-            throw new RuntimeException("O serviço de mapas externo está sobrecarregado (429). Tente novamente em alguns segundos.");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Erro de interrupção na consulta de endereço", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao consultar serviço de mapas: " + e.getMessage(), e);
         }
     }
 }
