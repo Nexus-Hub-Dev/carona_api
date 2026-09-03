@@ -1,7 +1,7 @@
 package com.generation.carona_api.service;
 
+import com.fasterxml.jackson.databind.JsonNode; 
 import com.generation.carona_api.dto.AddressResult;
-import tools.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -44,7 +44,6 @@ public class NominatimService {
             );
 
         } catch (WebClientResponseException.TooManyRequests e) {
-            // Trata o erro 429 para não quebrar a API inteira
             throw new RuntimeException("O serviço de mapas externo está sobrecarregado (429). Tente novamente em alguns segundos.");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
