@@ -88,6 +88,13 @@ public class ViagemController {
 
 	@PostMapping
 	public ResponseEntity<Viagem> cadastrar(@Valid @RequestBody Viagem viagem) {
+		if (viagem.getUsuario() == null || viagem.getUsuario().getId() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o id do usuário");
+		}
+		if (viagem.getVeiculo() == null || viagem.getVeiculo().getId() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o id do veículo");
+		}
+
 		Usuario usuarioCompleto = usuarioRepository.findById(viagem.getUsuario().getId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuário não encontrado"));
 		Veiculo veiculoCompleto = veiculoRepository.findById(viagem.getVeiculo().getId())
@@ -96,7 +103,12 @@ public class ViagemController {
 		viagem.setUsuario(usuarioCompleto);
 		viagem.setVeiculo(veiculoCompleto);
 
-		viagemMapsService.preencherDadosRota(viagem);
+		try {
+			viagemMapsService.preencherDadosRota(viagem);
+		} catch (RuntimeException ex) {
+			// O cadastro não deve falhar quando um serviço externo de mapas estiver indisponível.
+			System.err.println("Não foi possível calcular a rota: " + ex.getMessage());
+		}
 		Viagem viagemSalva = viagemRepository.save(viagem);
 		return ResponseEntity.status(HttpStatus.CREATED).body(viagemSalva);
 	}

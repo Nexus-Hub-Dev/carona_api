@@ -2,6 +2,7 @@ package com.generation.carona_api.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
@@ -38,6 +39,7 @@ public class Viagem {
 
 	@FutureOrPresent(message = "A data deve ser futura ou presente")
 	@NotNull
+	@JsonFormat(pattern = "yyyy-MM-dd['T' ]HH:mm[:ss]")
 	private LocalDateTime data;
 
 	@Column
