@@ -23,6 +23,8 @@ public class MapsClientConfig {
         return WebClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader("User-Agent", "CaronaApi-Production/1.0 (grupo1.java85@gmail.com)")
+                .defaultHeader("Referer", "https://carona-api-3ugi.onrender.com")
+                .defaultHeader("Accept", "application/json")
                 .build();
     }
 }
