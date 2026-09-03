@@ -12,7 +12,7 @@ public class MapsClientConfig {
     public WebClient osrmWebClient(@Value("${osrm.base-url}") String baseUrl) {
         return WebClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader("User-Agent", "carona-api-dev")
+                .defaultHeader("User-Agent", "CaronaApi-Production/1.0 (contato@caronaapi.com)")
                 .build();
     }
 
@@ -20,7 +20,7 @@ public class MapsClientConfig {
     public WebClient nominatimWebClient(@Value("${nominatim.base-url}") String baseUrl) {
         return WebClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader("User-Agent", "carona-api-dev")
+                .defaultHeader("User-Agent", "CaronaApi-Production/1.0 (grupo1.java85@gmail.com)")
                 .build();
     }
 }
