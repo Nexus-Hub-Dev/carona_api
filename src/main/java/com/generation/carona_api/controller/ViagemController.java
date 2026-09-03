@@ -108,6 +108,7 @@ public class ViagemController {
 		} catch (RuntimeException ex) {
 			// O cadastro não deve falhar quando um serviço externo de mapas estiver indisponível.
 			System.err.println("Não foi possível calcular a rota: " + ex.getMessage());
+			ex.printStackTrace();
 		}
 		Viagem viagemSalva = viagemRepository.save(viagem);
 		return ResponseEntity.status(HttpStatus.CREATED).body(viagemSalva);
