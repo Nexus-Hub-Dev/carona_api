@@ -1,6 +1,6 @@
 package com.generation.carona_api.service;
 
-import com.fasterxml.jackson.databind.JsonNode; 
+import tools.jackson.databind.JsonNode;
 import com.generation.carona_api.dto.RouteResult;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
