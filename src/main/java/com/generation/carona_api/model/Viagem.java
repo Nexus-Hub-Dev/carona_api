@@ -39,7 +39,7 @@ public class Viagem {
 
 	@FutureOrPresent(message = "A data deve ser futura ou presente")
 	@NotNull
-	@JsonFormat(pattern = "yyyy-MM-dd['T' ]HH:mm[:ss]")
+	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private LocalDateTime data;
 
 	@Column
