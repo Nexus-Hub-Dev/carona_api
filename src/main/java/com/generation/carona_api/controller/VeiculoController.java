@@ -89,4 +89,11 @@ public class VeiculoController {
 
 		veiculoRepository.deleteById(id);
 	}
+	
+	
+	//M: rotas-endpointts novos
+	@GetMapping("/pcd")
+	public ResponseEntity<List<Veiculo>> getByAcessivelPcd() {
+	    return ResponseEntity.ok(veiculoRepository.findAllByAcessivelPcdTrue());
+	}
 }

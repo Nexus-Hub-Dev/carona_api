@@ -50,6 +50,11 @@ public class Usuario {
 	@Column(length = 5000)
 	private String foto;
 	
+	//M: Atributo genero adicionado
+	@NotBlank(message = "O Atributo Gênero é Obrigatório!")
+	@Column(length = 50)
+	private String genero;
+	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "usuario", cascade = CascadeType.REMOVE)
 	@JsonIgnoreProperties(value = "usuario", allowSetters = true)
 	private List<Viagem> viagem;
@@ -110,6 +115,16 @@ public class Usuario {
 	public void setViagem(List<Viagem> viagem) {
 		this.viagem = viagem;
 	}
+
+	//M: Getters e Setters de Genero
+	public String getGenero() {
+		return genero;
+	}
+
+	public void setGenero(String genero) {
+		this.genero = genero;
+	}
+	
 	
 	
 

@@ -70,6 +70,10 @@ public class Viagem {
 	@Column
 	private Double longitudeDestino;
 	
+	//M: Atributo apenasMulheres
+	@NotNull(message = "O atributo apenasMulheres é obrigatório!")
+	private Boolean apenasMulheres;
+	
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
 	@JsonIgnoreProperties(value = "viagem", allowSetters = true)
@@ -193,4 +197,15 @@ public class Viagem {
 	public void setVeiculo(Veiculo veiculo) {
 		this.veiculo = veiculo;
 	}
+
+	//M: Getters e Setter de apenasMulheres
+	public Boolean getApenasMulheres() {
+		return apenasMulheres;
+	}
+
+	public void setApenasMulheres(Boolean apenasMulheres) {
+		this.apenasMulheres = apenasMulheres;
+	}
+	
+	
 }

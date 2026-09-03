@@ -112,4 +112,15 @@ public class ViagemController {
 		}
 		viagemRepository.deleteById(id);
 	}
+	
+	//M: Endpoints novos
+	@GetMapping("/mulheres")
+	public ResponseEntity<List<Viagem>> getByApenasMulheres() {
+	    return ResponseEntity.ok(viagemRepository.findAllByApenasMulheresTrue());
+	}
+	@GetMapping("/pcd")
+	public ResponseEntity<List<Viagem>> getByAcessivelPcd() {
+	    return ResponseEntity.ok(viagemRepository.findAllByVeiculoAcessivelPcdTrue());
+	}
+	
 }
