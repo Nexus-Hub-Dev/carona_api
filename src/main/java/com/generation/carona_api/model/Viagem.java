@@ -35,6 +35,28 @@ public class Viagem {
 	@Size(min = 3, max = 80, message = "O atributo destino deve ter no mínimo 3 e no máximo 80 caracteres")
 	@Column(length = 80)
 	private String destino;
+	
+	 @Column(name = "somente_mulheres")
+	    private boolean somenteMulheres;
+
+	    public boolean isSomenteMulheres() {
+	        return somenteMulheres;
+	    }
+
+	    public void setSomenteMulheres(boolean somenteMulheres) {
+	        this.somenteMulheres = somenteMulheres;
+	    }
+	    
+	    @Column(name = "disponivel_pcd")
+	    private boolean disponivelPCD; // true = motorista aceita passageiros PCD nessa viagem
+
+	    public boolean isDisponivelPCD() {
+	        return disponivelPCD;
+	    }
+
+	    public void setDisponivelPCD(boolean disponivelPCD) {
+	        this.disponivelPCD = disponivelPCD;
+	    }
 
 	@FutureOrPresent(message = "A data deve ser futura ou presente")
 	@NotNull

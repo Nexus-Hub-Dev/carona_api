@@ -75,6 +75,11 @@ public class ViagemController {
 	public ResponseEntity<List<Viagem>> getByDestino(@PathVariable String destino) {
 		return ResponseEntity.ok(viagemRepository.findAllByDestinoContainingIgnoreCase(destino));
 	}
+	
+	@GetMapping("/somente-mulheres")
+    public ResponseEntity<List<Viagem>> listarViagensSomenteMulheres() {
+        return ResponseEntity.ok(viagemService.listarSomenteMulheres());
+    }
 
 	@PostMapping
 	public ResponseEntity<Viagem> cadastrar(@Valid @RequestBody Viagem viagem) {
@@ -83,12 +88,19 @@ public class ViagemController {
 		Veiculo veiculoCompleto = veiculoRepository.findById(viagem.getVeiculo().getId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Veículo não encontrado"));
 
+		viagemService.validarCriacaoSomenteMulheres(viagem, usuarioCompleto); // <-- nova validação aqui
+
 		viagem.setUsuario(usuarioCompleto);
 		viagem.setVeiculo(veiculoCompleto);
 
 		viagemMapsService.preencherDadosRota(viagem);
 		Viagem viagemSalva = viagemRepository.save(viagem);
 		return ResponseEntity.status(HttpStatus.CREATED).body(viagemSalva);
+	}
+	
+	@GetMapping("/pcd")
+	public ResponseEntity<List<Viagem>> listarViagensPCD() {
+	    return ResponseEntity.ok(viagemService.listarDisponivelPCD());
 	}
 
 	@PutMapping
