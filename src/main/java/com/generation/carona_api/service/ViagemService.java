@@ -6,7 +6,11 @@ import org.springframework.http.HttpStatus;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import com.generation.carona_api.dto.RouteResult;
+import com.generation.carona_api.dto.SugestaoValorRequest;
+import com.generation.carona_api.dto.SugestaoValorResponse;
 import com.generation.carona_api.model.Usuario;
+import com.generation.carona_api.model.Veiculo;
 import com.generation.carona_api.model.Viagem;
 import com.generation.carona_api.repository.ViagemRepository;
 
@@ -19,9 +23,11 @@ public class ViagemService {
     private static final double TARIFA_POR_KM = 2.50;
 
     private final ViagemRepository viagemRepository;
+    private final ViagemMapsService viagemMapsService;
 
-    public ViagemService(ViagemRepository viagemRepository) {
+    public ViagemService(ViagemRepository viagemRepository, ViagemMapsService viagemMapsService) {
         this.viagemRepository = viagemRepository;
+        this.viagemMapsService = viagemMapsService;
     }
 
     public Viagem calcularEntrega(Viagem viagem) {
@@ -34,18 +40,13 @@ public class ViagemService {
                 viagem.getLatitudePartida(), viagem.getLongitudePartida(),
                 viagem.getLatitudeDestino(), viagem.getLongitudeDestino());
 
-        // Tempo = (Distância / Velocidade) * 60 minutos
         double tempo = (distancia / VELOCIDADE_MEDIA_KMH) * 60;
-
-        // Cálculo do valor da viagem
         double valorDaViagem = distancia * TARIFA_POR_KM;
 
-        // Arredondando tudo para 2 casas decimais
         double distanciaArredondada = Math.round(distancia * 100.0) / 100.0;
         double tempoArredondado = Math.round(tempo * 100.0) / 100.0;
         double valorArredondado = Math.round(valorDaViagem * 100.0) / 100.0;
 
-        // Setando os valores formatados no objeto Viagem
         viagem.setDistanciaKm(distanciaArredondada);
         viagem.setTempoEstimadoMin(tempoArredondado);
         viagem.setValorTotal(valorArredondado);
@@ -68,10 +69,6 @@ public class ViagemService {
 
     // --- Regra "somente mulheres" ---
 
-    /**
-     * Chame este método no momento de CADASTRAR a viagem, antes de salvar,
-     * passando o motorista logado. Bloqueia a marcação se o motorista não for mulher.
-     */
     public void validarCriacaoSomenteMulheres(Viagem viagem, Usuario motorista) {
         if (viagem.isSomenteMulheres() && !"F".equalsIgnoreCase(motorista.getSexo())) {
             throw new ResponseStatusException(
@@ -81,11 +78,6 @@ public class ViagemService {
         }
     }
 
-    /**
-     * Chame este método no momento da RESERVA, antes de confirmar a vaga,
-     * passando o usuário/passageiro logado. Bloqueia a reserva se a viagem
-     * for exclusiva para mulheres e o usuário não for do sexo feminino.
-     */
     public void validarReservaSomenteMulheres(Viagem viagem, Usuario usuario) {
         if (viagem.isSomenteMulheres() && !"F".equalsIgnoreCase(usuario.getSexo())) {
             throw new ResponseStatusException(
@@ -99,9 +91,29 @@ public class ViagemService {
         return viagemRepository.findBySomenteMulheresTrue();
     }
 
-    // --- Regra "PCD" (apenas filtro, sem bloqueio de reserva) ---
+    // --- Regra "PCD" (agora vinculada ao veículo, apenas filtro) ---
+
+    public void validarCriacaoPCD(Viagem viagem, Veiculo veiculo) {
+        if (viagem.isDisponivelPCD() && !veiculo.isAdaptadoPCD()) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Só é possível marcar a viagem como disponível para PCD se o veículo for adaptado"
+            );
+        }
+    }
 
     public List<Viagem> listarDisponivelPCD() {
         return viagemRepository.findByDisponivelPCDTrue();
+    }
+
+    // --- Sugestão de valor ---
+
+    public SugestaoValorResponse calcularSugestaoValor(SugestaoValorRequest request) {
+        RouteResult rota = viagemMapsService.calcularRota(request.getPartida(), request.getDestino());
+
+        double valorSugerido = rota.distanciaKm() * TARIFA_POR_KM;
+        double valorArredondado = Math.round(valorSugerido * 100.0) / 100.0;
+
+        return new SugestaoValorResponse(rota.distanciaKm(), rota.tempoEstimadoMin(), valorArredondado);
     }
 }

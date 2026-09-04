@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.generation.carona_api.dto.SugestaoValorRequest;
+import com.generation.carona_api.dto.SugestaoValorResponse;
 import com.generation.carona_api.model.Usuario;
 import com.generation.carona_api.model.Veiculo;
 import com.generation.carona_api.model.Viagem;
@@ -80,6 +82,11 @@ public class ViagemController {
     public ResponseEntity<List<Viagem>> listarViagensSomenteMulheres() {
         return ResponseEntity.ok(viagemService.listarSomenteMulheres());
     }
+	
+	@PostMapping("/sugestao-valor")
+	public ResponseEntity<SugestaoValorResponse> sugerirValor(@Valid @RequestBody SugestaoValorRequest request) {
+	    return ResponseEntity.ok(viagemService.calcularSugestaoValor(request));
+	}
 
 	@PostMapping
 	public ResponseEntity<Viagem> cadastrar(@Valid @RequestBody Viagem viagem) {
@@ -88,7 +95,8 @@ public class ViagemController {
 		Veiculo veiculoCompleto = veiculoRepository.findById(viagem.getVeiculo().getId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Veículo não encontrado"));
 
-		viagemService.validarCriacaoSomenteMulheres(viagem, usuarioCompleto); // <-- nova validação aqui
+		viagemService.validarCriacaoSomenteMulheres(viagem, usuarioCompleto);
+		viagemService.validarCriacaoPCD(viagem, veiculoCompleto); // <-- nova validação aqui
 
 		viagem.setUsuario(usuarioCompleto);
 		viagem.setVeiculo(veiculoCompleto);

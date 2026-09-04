@@ -45,6 +45,17 @@ public class Veiculo {
 
 	@NotNull(message = "O atributo capacidade é obrigatório! Digite quantos lugares disponíveis o carro tem")
 	private int capacidade;
+	
+	@Column(name = "adaptado_pcd")
+	private boolean adaptadoPCD; // true = veículo é adaptado para PCD
+
+	public boolean isAdaptadoPCD() {
+	    return adaptadoPCD;
+	}
+
+	public void setAdaptadoPCD(boolean adaptadoPCD) {
+	    this.adaptadoPCD = adaptadoPCD;
+	}
 
 	@OneToMany
 	@JsonIgnoreProperties("veiculo")

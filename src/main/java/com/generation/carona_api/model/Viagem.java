@@ -57,6 +57,17 @@ public class Viagem {
 	    public void setDisponivelPCD(boolean disponivelPCD) {
 	        this.disponivelPCD = disponivelPCD;
 	    }
+	    
+	    @Column
+	    private Double valorSugerido;
+
+	    public Double getValorSugerido() {
+	        return valorSugerido;
+	    }
+
+	    public void setValorSugerido(Double valorSugerido) {
+	        this.valorSugerido = valorSugerido;
+	    }
 
 	@FutureOrPresent(message = "A data deve ser futura ou presente")
 	@NotNull

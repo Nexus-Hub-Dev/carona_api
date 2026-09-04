@@ -32,5 +32,16 @@ public class ViagemMapsService {
 
         viagem.setDistanciaKm(rota.distanciaKm());
         viagem.setTempoEstimadoMin(rota.tempoEstimadoMin());
-    }
-}
+    } // <-- fecha o preencherDadosRota aqui
+
+    public RouteResult calcularRota(String partida, String destino) {
+        AddressResult origem = nominatimService.geocodificar(partida);
+        AddressResult destinoResult = nominatimService.geocodificar(destino);
+
+        return osrmService.calcularRota(
+                origem.latitude(), origem.longitude(),
+                destinoResult.latitude(), destinoResult.longitude()
+        );
+    } // <-- fecha o calcularRota aqui
+
+} // <-- fecha a classe

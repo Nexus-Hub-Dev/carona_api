@@ -41,17 +41,7 @@ public class Usuario {
         this.sexo = sexo;
     }
     
-    @Column(name = "pcd", nullable = false, columnDefinition = "boolean default false")
-    private boolean pcd; // true = usuário possui alguma necessidade especial
 
-    // getters e setters
-    public boolean isPcd() {
-        return pcd;
-    }
-
-    public void setPcd(boolean pcd) {
-        this.pcd = pcd;
-    }
 	
 	@NotBlank(message = "O Atributo celular é Obrigatório!")
 	@Size(min = 11, message = "O número de celular deve conter exatamente 11 dígitos e não pode conter caracteres especiais")
