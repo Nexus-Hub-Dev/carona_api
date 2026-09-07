@@ -1,16 +1,34 @@
 package com.generation.carona_api.service;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
+import org.springframework.http.HttpStatus;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import com.generation.carona_api.dto.RouteResult;
+import com.generation.carona_api.dto.SugestaoValorRequest;
+import com.generation.carona_api.dto.SugestaoValorResponse;
+import com.generation.carona_api.model.Usuario;
+import com.generation.carona_api.model.Veiculo;
 import com.generation.carona_api.model.Viagem;
+import com.generation.carona_api.repository.ViagemRepository;
 
 @Service
 public class ViagemService {
 
     private static final double VELOCIDADE_MEDIA_KMH = 60.0;
     private static final int RAIO_TERRA_KM = 6371;
-    
-    private static final double TARIFA_POR_KM = 2.50; 
+
+    private static final double TARIFA_POR_KM = 2.50;
+
+    private final ViagemRepository viagemRepository;
+    private final ViagemMapsService viagemMapsService;
+
+    public ViagemService(ViagemRepository viagemRepository, ViagemMapsService viagemMapsService) {
+        this.viagemRepository = viagemRepository;
+        this.viagemMapsService = viagemMapsService;
+    }
 
     public Viagem calcularEntrega(Viagem viagem) {
         if (viagem.getLatitudePartida() == null || viagem.getLongitudePartida() == null ||
@@ -22,21 +40,16 @@ public class ViagemService {
                 viagem.getLatitudePartida(), viagem.getLongitudePartida(),
                 viagem.getLatitudeDestino(), viagem.getLongitudeDestino());
 
-        // Tempo = (Distância / Velocidade) * 60 minutos
         double tempo = (distancia / VELOCIDADE_MEDIA_KMH) * 60;
-        
-        // Cálculo do valor da viagem
         double valorDaViagem = distancia * TARIFA_POR_KM;
 
-        // Arredondando tudo para 2 casas decimais
         double distanciaArredondada = Math.round(distancia * 100.0) / 100.0;
         double tempoArredondado = Math.round(tempo * 100.0) / 100.0;
         double valorArredondado = Math.round(valorDaViagem * 100.0) / 100.0;
 
-        // Setando os valores formatados no objeto Viagem
         viagem.setDistanciaKm(distanciaArredondada);
         viagem.setTempoEstimadoMin(tempoArredondado);
-        viagem.setValorKm(valorArredondado);
+        viagem.setValorTotal(valorArredondado);
 
         return viagem;
     }
@@ -52,5 +65,55 @@ public class ViagemService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
         return RAIO_TERRA_KM * c;
+    }
+
+    // --- Regra "somente mulheres" ---
+
+    public void validarCriacaoSomenteMulheres(Viagem viagem, Usuario motorista) {
+        if (viagem.isSomenteMulheres() && !"F".equalsIgnoreCase(motorista.getSexo())) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Apenas motoristas do sexo feminino podem criar viagens somente para mulheres"
+            );
+        }
+    }
+
+    public void validarReservaSomenteMulheres(Viagem viagem, Usuario usuario) {
+        if (viagem.isSomenteMulheres() && !"F".equalsIgnoreCase(usuario.getSexo())) {
+            throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "Esta viagem é exclusiva para passageiras do sexo feminino"
+            );
+        }
+    }
+
+    public List<Viagem> listarSomenteMulheres() {
+        return viagemRepository.findBySomenteMulheresTrue();
+    }
+
+    // --- Regra "PCD" (agora vinculada ao veículo, apenas filtro) ---
+
+    public void validarCriacaoPCD(Viagem viagem, Veiculo veiculo) {
+        if (viagem.isDisponivelPCD() && !veiculo.isAdaptadoPCD()) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Só é possível marcar a viagem como disponível para PCD se o veículo for adaptado"
+            );
+        }
+    }
+
+    public List<Viagem> listarDisponivelPCD() {
+        return viagemRepository.findByDisponivelPCDTrue();
+    }
+
+    // --- Sugestão de valor ---
+
+    public SugestaoValorResponse calcularSugestaoValor(SugestaoValorRequest request) {
+        RouteResult rota = viagemMapsService.calcularRota(request.getPartida(), request.getDestino());
+
+        double valorSugerido = rota.distanciaKm() * TARIFA_POR_KM;
+        double valorArredondado = Math.round(valorSugerido * 100.0) / 100.0;
+
+        return new SugestaoValorResponse(rota.distanciaKm(), rota.tempoEstimadoMin(), valorArredondado);
     }
 }

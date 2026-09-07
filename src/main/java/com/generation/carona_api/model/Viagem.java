@@ -36,6 +36,39 @@ public class Viagem {
 	@Size(min = 3, max = 80, message = "O atributo destino deve ter no mínimo 3 e no máximo 80 caracteres")
 	@Column(length = 80)
 	private String destino;
+	
+	 @Column(name = "somente_mulheres")
+	    private boolean somenteMulheres;
+
+	    public boolean isSomenteMulheres() {
+	        return somenteMulheres;
+	    }
+
+	    public void setSomenteMulheres(boolean somenteMulheres) {
+	        this.somenteMulheres = somenteMulheres;
+	    }
+	    
+	    @Column(name = "disponivel_pcd")
+	    private boolean disponivelPCD; // true = motorista aceita passageiros PCD nessa viagem
+
+	    public boolean isDisponivelPCD() {
+	        return disponivelPCD;
+	    }
+
+	    public void setDisponivelPCD(boolean disponivelPCD) {
+	        this.disponivelPCD = disponivelPCD;
+	    }
+	    
+	    @Column
+	    private Double valorSugerido;
+
+	    public Double getValorSugerido() {
+	        return valorSugerido;
+	    }
+
+	    public void setValorSugerido(Double valorSugerido) {
+	        this.valorSugerido = valorSugerido;
+	    }
 
 	@FutureOrPresent(message = "A data deve ser futura ou presente")
 	@NotNull
@@ -48,13 +81,9 @@ public class Viagem {
 	@Column
 	private Double tempoEstimadoMin;
 
-	@Min(value = 0, message = "O valor da viagem não pode ser negativo")
-	@NotNull(message = "O atributo valorKm é obrigatório!")
 	@Column
-	private Double valorKm;
+	private Double valorTotal;
 
-	@Min(value = 0, message = "A velocidade média não pode ser negativa")
-	@NotNull(message = "O atributo velocidadeMedia é obrigatório!")
 	@Column
 	private Integer velocidadeMedia;
 
@@ -133,12 +162,12 @@ public class Viagem {
 		this.tempoEstimadoMin = tempoEstimadoMin;
 	}
 
-	public Double getValorKm() {
-		return valorKm;
+	public Double getValorTotal() {
+		return valorTotal;
 	}
 
-	public void setValorKm(Double valorKm) {
-		this.valorKm = valorKm;
+	public void setValorTotal(Double valorTotal) {
+		this.valorTotal = valorTotal;
 	}
 
 	public Integer getVelocidadeMedia() {

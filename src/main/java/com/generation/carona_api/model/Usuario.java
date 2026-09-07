@@ -30,6 +30,19 @@ public class Usuario {
 	@Column(length = 255)
 	private String nome;
 	
+	@NotBlank(message = "O Atributo sexo é Obrigatório!")
+	@Column(length = 30)
+	private String sexo;
+	public String getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(String sexo) {
+        this.sexo = sexo;
+    }
+    
+
+	
 	@NotBlank(message = "O Atributo celular é Obrigatório!")
 	@Size(min = 11, message = "O número de celular deve conter exatamente 11 dígitos e não pode conter caracteres especiais")
 	@Column(length = 11)

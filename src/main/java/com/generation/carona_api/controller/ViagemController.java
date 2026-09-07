@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.generation.carona_api.dto.SugestaoValorRequest;
+import com.generation.carona_api.dto.SugestaoValorResponse;
 import com.generation.carona_api.model.Usuario;
 import com.generation.carona_api.model.Veiculo;
 import com.generation.carona_api.model.Viagem;
@@ -75,6 +77,16 @@ public class ViagemController {
 	public ResponseEntity<List<Viagem>> getByDestino(@PathVariable String destino) {
 		return ResponseEntity.ok(viagemRepository.findAllByDestinoContainingIgnoreCase(destino));
 	}
+	
+	@GetMapping("/somente-mulheres")
+    public ResponseEntity<List<Viagem>> listarViagensSomenteMulheres() {
+        return ResponseEntity.ok(viagemService.listarSomenteMulheres());
+    }
+	
+	@PostMapping("/sugestao-valor")
+	public ResponseEntity<SugestaoValorResponse> sugerirValor(@Valid @RequestBody SugestaoValorRequest request) {
+	    return ResponseEntity.ok(viagemService.calcularSugestaoValor(request));
+	}
 
 	@GetMapping("/mulheres")
 	public ResponseEntity<List<Viagem>> getByApenasMulheres() {
@@ -100,6 +112,9 @@ public class ViagemController {
 		Veiculo veiculoCompleto = veiculoRepository.findById(viagem.getVeiculo().getId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Veículo não encontrado"));
 
+		viagemService.validarCriacaoSomenteMulheres(viagem, usuarioCompleto);
+		viagemService.validarCriacaoPCD(viagem, veiculoCompleto); // <-- nova validação aqui
+
 		viagem.setUsuario(usuarioCompleto);
 		viagem.setVeiculo(veiculoCompleto);
 
@@ -112,6 +127,11 @@ public class ViagemController {
 		}
 		Viagem viagemSalva = viagemRepository.save(viagem);
 		return ResponseEntity.status(HttpStatus.CREATED).body(viagemSalva);
+	}
+	
+	@GetMapping("/pcd")
+	public ResponseEntity<List<Viagem>> listarViagensPCD() {
+	    return ResponseEntity.ok(viagemService.listarDisponivelPCD());
 	}
 
 	@PutMapping

@@ -14,6 +14,8 @@ public class AddressResult {
     public String displayName() { return displayName; }
     public double latitude() { return latitude; }
     public double longitude() { return longitude; }
+    
+    
 
     // + equals(), hashCode() e toString() gerados automaticamente
 }
