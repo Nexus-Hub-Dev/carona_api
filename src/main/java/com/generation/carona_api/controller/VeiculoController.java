@@ -31,23 +31,15 @@ public class VeiculoController {
 	private VeiculoRepository veiculoRepository;
 
 	@GetMapping
-
 	public ResponseEntity<List<Veiculo>> getAll() {
-
 		return ResponseEntity.ok(veiculoRepository.findAll());
-
 	}
 
 	@GetMapping("/{id}")
-
 	public ResponseEntity<Veiculo> getById(@PathVariable Long id) {
-
 		return veiculoRepository.findById(id)
-
 				.map(resposta -> ResponseEntity.ok(resposta))
-
 				.orElse(ResponseEntity.notFound().build());
-
 	}
 	
 	@GetMapping("/modelo/{modelo}")
@@ -57,21 +49,23 @@ public class VeiculoController {
 	
 	@GetMapping("/placa/{placa}")
 	public ResponseEntity<Veiculo> getByPlaca(@PathVariable String placa) {
+		return veiculoRepository.findByPlacaIgnoreCase(placa)
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
+	}
 
-	    return veiculoRepository.findByPlacaIgnoreCase(placa)
-	            .map(ResponseEntity::ok)
-	            .orElse(ResponseEntity.notFound().build());
+	@GetMapping("/pcd")
+	public ResponseEntity<List<Veiculo>> getByAcessivelPcd() {
+		return ResponseEntity.ok(veiculoRepository.findAllByAcessivelPcdTrue());
 	}
 
 	@PostMapping
 	public ResponseEntity<Veiculo> post(@Valid @RequestBody Veiculo Veiculo) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(veiculoRepository.save(Veiculo));
-
 	}
 
 	@PutMapping
 	public ResponseEntity<Veiculo> put(@Valid @RequestBody Veiculo Veiculo) {
-
 		if (veiculoRepository.existsById(Veiculo.getId()))
 			return ResponseEntity.ok(veiculoRepository.save(Veiculo));
 
@@ -81,7 +75,6 @@ public class VeiculoController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id) {
-
 		Optional<Veiculo> Veiculo = veiculoRepository.findById(id);
 
 		if (Veiculo.isEmpty())

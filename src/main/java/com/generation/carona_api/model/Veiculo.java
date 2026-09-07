@@ -57,6 +57,9 @@ public class Veiculo {
 	    this.adaptadoPCD = adaptadoPCD;
 	}
 
+	@NotNull(message = "O atributo acessivelPcd é obrigatório!")
+	private Boolean acessivelPcd;
+
 	@OneToMany
 	@JsonIgnoreProperties("veiculo")
 	private List<Viagem> viagem;
@@ -109,6 +112,14 @@ public class Veiculo {
 		this.capacidade = capacidade;
 	}
 
+	public Boolean getAcessivelPcd() {
+		return acessivelPcd;
+	}
+
+	public void setAcessivelPcd(Boolean acessivelPcd) {
+		this.acessivelPcd = acessivelPcd;
+	}
+
 	public List<Viagem> getViagem() {
 		return viagem;
 	}
@@ -116,6 +127,4 @@ public class Veiculo {
 	public void setViagem(List<Viagem> viagem) {
 		this.viagem = viagem;
 	}
-	
-
 }

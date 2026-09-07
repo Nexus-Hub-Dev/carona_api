@@ -49,7 +49,7 @@ public class ViagemController {
 
 	public ViagemController(ViagemRepository viagemRepository, ViagemService viagemService,
 			ViagemMapsService viagemMapsService, UsuarioRepository usuarioRepository,
-            VeiculoRepository veiculoRepository) {
+			VeiculoRepository veiculoRepository) {
 		this.viagemRepository = viagemRepository;
 		this.viagemService = viagemService;
 		this.viagemMapsService = viagemMapsService;
@@ -88,8 +88,25 @@ public class ViagemController {
 	    return ResponseEntity.ok(viagemService.calcularSugestaoValor(request));
 	}
 
+	@GetMapping("/mulheres")
+	public ResponseEntity<List<Viagem>> getByApenasMulheres() {
+		return ResponseEntity.ok(viagemRepository.findAllByApenasMulheresTrue());
+	}
+
+	@GetMapping("/pcd")
+	public ResponseEntity<List<Viagem>> getByAcessivelPcd() {
+		return ResponseEntity.ok(viagemRepository.findAllByVeiculoAcessivelPcdTrue());
+	}
+
 	@PostMapping
 	public ResponseEntity<Viagem> cadastrar(@Valid @RequestBody Viagem viagem) {
+		if (viagem.getUsuario() == null || viagem.getUsuario().getId() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o id do usuário");
+		}
+		if (viagem.getVeiculo() == null || viagem.getVeiculo().getId() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o id do veículo");
+		}
+
 		Usuario usuarioCompleto = usuarioRepository.findById(viagem.getUsuario().getId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuário não encontrado"));
 		Veiculo veiculoCompleto = veiculoRepository.findById(viagem.getVeiculo().getId())
@@ -101,7 +118,13 @@ public class ViagemController {
 		viagem.setUsuario(usuarioCompleto);
 		viagem.setVeiculo(veiculoCompleto);
 
-		viagemMapsService.preencherDadosRota(viagem);
+		try {
+			viagemMapsService.preencherDadosRota(viagem);
+		} catch (RuntimeException ex) {
+			// O cadastro não deve falhar quando um serviço externo de mapas estiver indisponível.
+			System.err.println("Não foi possível calcular a rota: " + ex.getMessage());
+			ex.printStackTrace();
+		}
 		Viagem viagemSalva = viagemRepository.save(viagem);
 		return ResponseEntity.status(HttpStatus.CREATED).body(viagemSalva);
 	}
@@ -118,7 +141,6 @@ public class ViagemController {
 		}
 
 		viagemMapsService.preencherDadosRota(viagem);
-		//
 		Viagem viagemCalculada = viagemService.calcularEntrega(viagem);
 
 		return ResponseEntity.status(HttpStatus.OK).body(viagemRepository.save(viagemCalculada));

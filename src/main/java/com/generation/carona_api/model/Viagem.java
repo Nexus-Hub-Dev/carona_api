@@ -2,6 +2,7 @@ package com.generation.carona_api.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
@@ -71,12 +72,11 @@ public class Viagem {
 
 	@FutureOrPresent(message = "A data deve ser futura ou presente")
 	@NotNull
+	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private LocalDateTime data;
 
-	
 	@Column
 	private Double distanciaKm;
-
 
 	@Column
 	private Double tempoEstimadoMin;
@@ -87,19 +87,18 @@ public class Viagem {
 	@Column
 	private Integer velocidadeMedia;
 
-	
+	@NotNull(message = "O atributo apenasMulheres é obrigatório!")
+	private Boolean apenasMulheres;
+
 	@Column
 	private Double latitudePartida;
 
-	
 	@Column
 	private Double latitudeDestino;
 
-	
 	@Column
 	private Double longitudePartida;
 
-	
 	@Column
 	private Double longitudeDestino;
 	
@@ -177,6 +176,14 @@ public class Viagem {
 
 	public void setVelocidadeMedia(Integer velocidadeMedia) {
 		this.velocidadeMedia = velocidadeMedia;
+	}
+
+	public Boolean getApenasMulheres() {
+		return apenasMulheres;
+	}
+
+	public void setApenasMulheres(Boolean apenasMulheres) {
+		this.apenasMulheres = apenasMulheres;
 	}
 
 	public Double getLatitudePartida() {
