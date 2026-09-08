@@ -80,7 +80,7 @@ public class ViagemController {
 
 	@GetMapping("/somente-mulheres")
     public ResponseEntity<List<Viagem>> listarViagensSomenteMulheres() {
-        return ResponseEntity.ok(viagemService.listarSomenteMulheres());
+        return ResponseEntity.ok(viagemService.listarApenasMulheres());
     }
 
 	@PostMapping("/sugestao-valor")
@@ -107,7 +107,7 @@ public class ViagemController {
 		Veiculo veiculoCompleto = veiculoRepository.findById(viagem.getVeiculo().getId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Veículo não encontrado"));
 
-		viagemService.validarCriacaoSomenteMulheres(viagem, usuarioCompleto);
+		viagemService.validarCriacaoApenasMulheres(viagem, usuarioCompleto);
 		viagemService.validarCriacaoPCD(viagem, veiculoCompleto); // <-- nova validação aqui
 
 		viagem.setUsuario(usuarioCompleto);
