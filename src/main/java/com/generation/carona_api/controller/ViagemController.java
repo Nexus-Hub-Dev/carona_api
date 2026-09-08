@@ -77,25 +77,20 @@ public class ViagemController {
 	public ResponseEntity<List<Viagem>> getByDestino(@PathVariable String destino) {
 		return ResponseEntity.ok(viagemRepository.findAllByDestinoContainingIgnoreCase(destino));
 	}
-	
+
 	@GetMapping("/somente-mulheres")
     public ResponseEntity<List<Viagem>> listarViagensSomenteMulheres() {
         return ResponseEntity.ok(viagemService.listarSomenteMulheres());
     }
-	
+
 	@PostMapping("/sugestao-valor")
 	public ResponseEntity<SugestaoValorResponse> sugerirValor(@Valid @RequestBody SugestaoValorRequest request) {
 	    return ResponseEntity.ok(viagemService.calcularSugestaoValor(request));
 	}
 
-	@GetMapping("/mulheres")
-	public ResponseEntity<List<Viagem>> getByApenasMulheres() {
-		return ResponseEntity.ok(viagemRepository.findAllByApenasMulheresTrue());
-	}
-
 	@GetMapping("/pcd")
-	public ResponseEntity<List<Viagem>> getByAcessivelPcd() {
-		return ResponseEntity.ok(viagemRepository.findAllByVeiculoAcessivelPcdTrue());
+	public ResponseEntity<List<Viagem>> listarViagensPCD() {
+	    return ResponseEntity.ok(viagemService.listarDisponivelPCD());
 	}
 
 	@PostMapping
@@ -127,11 +122,6 @@ public class ViagemController {
 		}
 		Viagem viagemSalva = viagemRepository.save(viagem);
 		return ResponseEntity.status(HttpStatus.CREATED).body(viagemSalva);
-	}
-	
-	@GetMapping("/pcd")
-	public ResponseEntity<List<Viagem>> listarViagensPCD() {
-	    return ResponseEntity.ok(viagemService.listarDisponivelPCD());
 	}
 
 	@PutMapping
