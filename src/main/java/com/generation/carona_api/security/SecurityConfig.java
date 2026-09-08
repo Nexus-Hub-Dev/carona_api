@@ -1,4 +1,3 @@
-```java
 package com.generation.carona_api.security;
 
 import java.util.List;
@@ -129,4 +128,3 @@ public class SecurityConfig {
             .build();
     }
 }
-```
