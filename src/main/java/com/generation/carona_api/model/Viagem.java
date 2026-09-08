@@ -37,18 +37,7 @@ public class Viagem {
 	@Column(length = 80)
 	private String destino;
 	
-	 @Column(name = "somente_mulheres")
-	    private boolean somenteMulheres;
-
-	    public boolean isSomenteMulheres() {
-	        return somenteMulheres;
-	    }
-
-	    public void setSomenteMulheres(boolean somenteMulheres) {
-	        this.somenteMulheres = somenteMulheres;
-	    }
-	    
-	    @Column(name = "disponivel_pcd")
+	 @Column(name = "disponivel_pcd")
 	    private boolean disponivelPCD; // true = motorista aceita passageiros PCD nessa viagem
 
 	    public boolean isDisponivelPCD() {
@@ -88,6 +77,7 @@ public class Viagem {
 	private Integer velocidadeMedia;
 
 	@NotNull(message = "O atributo apenasMulheres é obrigatório!")
+	@Column(name = "apenas_mulheres")
 	private Boolean apenasMulheres;
 
 	@Column

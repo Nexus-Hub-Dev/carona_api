@@ -67,37 +67,37 @@ public class ViagemService {
         return RAIO_TERRA_KM * c;
     }
 
-    // --- Regra "somente mulheres" ---
+    // --- Regra "apenas mulheres" ---
 
-    public void validarCriacaoSomenteMulheres(Viagem viagem, Usuario motorista) {
-        if (viagem.isSomenteMulheres() && !"F".equalsIgnoreCase(motorista.getSexo())) {
+    public void validarCriacaoApenasMulheres(Viagem viagem, Usuario motorista) {
+        if (Boolean.TRUE.equals(viagem.getApenasMulheres()) && !"Feminino".equalsIgnoreCase(motorista.getGenero())) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
-                "Apenas motoristas do sexo feminino podem criar viagens somente para mulheres"
+                "Apenas motoristas do gênero feminino podem criar viagens somente para mulheres"
             );
         }
     }
 
-    public void validarReservaSomenteMulheres(Viagem viagem, Usuario usuario) {
-        if (viagem.isSomenteMulheres() && !"F".equalsIgnoreCase(usuario.getSexo())) {
+    public void validarReservaApenasMulheres(Viagem viagem, Usuario usuario) {
+        if (Boolean.TRUE.equals(viagem.getApenasMulheres()) && !"Feminino".equalsIgnoreCase(usuario.getGenero())) {
             throw new ResponseStatusException(
                 HttpStatus.FORBIDDEN,
-                "Esta viagem é exclusiva para passageiras do sexo feminino"
+                "Esta viagem é exclusiva para passageiras do gênero feminino"
             );
         }
     }
 
-    public List<Viagem> listarSomenteMulheres() {
-        return viagemRepository.findBySomenteMulheresTrue();
+    public List<Viagem> listarApenasMulheres() {
+        return viagemRepository.findByApenasMulheresTrue();
     }
 
     // --- Regra "PCD" (agora vinculada ao veículo, apenas filtro) ---
 
     public void validarCriacaoPCD(Viagem viagem, Veiculo veiculo) {
-        if (viagem.isDisponivelPCD() && !veiculo.isAdaptadoPCD()) {
+        if (viagem.isDisponivelPCD() && !Boolean.TRUE.equals(veiculo.getAcessivelPcd())) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
-                "Só é possível marcar a viagem como disponível para PCD se o veículo for adaptado"
+                "Só é possível marcar a viagem como disponível para PCD se o veículo for acessível"
             );
         }
     }
