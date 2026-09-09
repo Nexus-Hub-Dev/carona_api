@@ -59,6 +59,7 @@ public class SecurityConfig {
         // Frontend local autorizado
         configuration.setAllowedOriginPatterns(List.of(
             "http://localhost:5173"
+                "https://carona-react.vercel.app"
         ));
 
         configuration.setAllowedMethods(List.of(
