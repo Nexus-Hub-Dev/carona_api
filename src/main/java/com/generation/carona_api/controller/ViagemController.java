@@ -87,11 +87,12 @@ public class ViagemController {
 		viagem.setVeiculo(veiculoCompleto);
 
 		viagemMapsService.preencherDadosRota(viagem);
-		//M: Adiiconar linha
+		//M: Adicionar linha
 		Viagem viagemCalculada = viagemService.calcularEntrega(viagem);
 		//M: alterado Viagem salva
 		//Viagem viagemSalva = viagemRepository.save(viagem);
 		Viagem viagemSalva = viagemRepository.save(viagemCalculada);
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body(viagemSalva);
 	}
 
