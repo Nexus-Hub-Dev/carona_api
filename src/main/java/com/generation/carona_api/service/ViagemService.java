@@ -70,7 +70,7 @@ public class ViagemService {
     // --- Regra "apenas mulheres" ---
 
     public void validarCriacaoApenasMulheres(Viagem viagem, Usuario motorista) {
-        if (Boolean.TRUE.equals(viagem.getApenasMulheres()) && !"Feminino".equalsIgnoreCase(motorista.getGenero())) {
+        if (Boolean.TRUE.equals(viagem.getApenasMulheres()) && !generoEhFeminino(motorista.getGenero())) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Apenas motoristas do gênero feminino podem criar viagens somente para mulheres"
@@ -79,12 +79,27 @@ public class ViagemService {
     }
 
     public void validarReservaApenasMulheres(Viagem viagem, Usuario usuario) {
-        if (Boolean.TRUE.equals(viagem.getApenasMulheres()) && !"Feminino".equalsIgnoreCase(usuario.getGenero())) {
+        if (Boolean.TRUE.equals(viagem.getApenasMulheres()) && !generoEhFeminino(usuario.getGenero())) {
             throw new ResponseStatusException(
                 HttpStatus.FORBIDDEN,
                 "Esta viagem é exclusiva para passageiras do gênero feminino"
             );
         }
+    }
+
+    /**
+     * Aceita variações comuns de como o gênero feminino pode estar
+     * cadastrado (dados legados/digitados livremente pelo usuário):
+     * "f", "F", "feminino", "Feminino", " Feminino ", etc.
+     */
+    private boolean generoEhFeminino(String genero) {
+        if (genero == null) {
+            return false;
+        }
+
+        String normalizado = genero.trim().toLowerCase(java.util.Locale.ROOT);
+
+        return normalizado.equals("f") || normalizado.equals("feminino");
     }
 
     public List<Viagem> listarApenasMulheres() {
