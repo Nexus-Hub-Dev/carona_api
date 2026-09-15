@@ -9,9 +9,11 @@ import org.springframework.web.server.ResponseStatusException;
 import com.generation.carona_api.dto.RouteResult;
 import com.generation.carona_api.dto.SugestaoValorRequest;
 import com.generation.carona_api.dto.SugestaoValorResponse;
+import com.generation.carona_api.model.StatusReserva;
 import com.generation.carona_api.model.Usuario;
 import com.generation.carona_api.model.Veiculo;
 import com.generation.carona_api.model.Viagem;
+import com.generation.carona_api.repository.ReservaRepository;
 import com.generation.carona_api.repository.ViagemRepository;
 
 @Service
@@ -24,10 +26,21 @@ public class ViagemService {
 
     private final ViagemRepository viagemRepository;
     private final ViagemMapsService viagemMapsService;
+    private final ReservaRepository reservaRepository;
 
-    public ViagemService(ViagemRepository viagemRepository, ViagemMapsService viagemMapsService) {
+    public ViagemService(ViagemRepository viagemRepository, ViagemMapsService viagemMapsService,
+            ReservaRepository reservaRepository) {
         this.viagemRepository = viagemRepository;
         this.viagemMapsService = viagemMapsService;
+        this.reservaRepository = reservaRepository;
+    }
+
+    // Vagas que ainda restam = as ofertadas menos as reservas já
+    // ACEITAS — não existe como coluna, sempre calculado na hora.
+    public int calcularVagasRestantes(Viagem viagem) {
+        if (viagem.getId() == null || viagem.getVagasDisponiveis() == null) return 0;
+        long ocupadas = reservaRepository.countByViagem_IdAndStatus(viagem.getId(), StatusReserva.aceita);
+        return (int) Math.max(0, viagem.getVagasDisponiveis() - ocupadas);
     }
 
     public Viagem calcularEntrega(Viagem viagem) {

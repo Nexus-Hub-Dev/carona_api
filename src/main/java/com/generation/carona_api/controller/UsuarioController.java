@@ -1,8 +1,5 @@
 package com.generation.carona_api.controller;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.generation.carona_api.model.UsuarioLogin;
+import com.generation.carona_api.dto.AtualizarUsuarioRequest;
+import com.generation.carona_api.dto.UsuarioPublicoDTO;
 import com.generation.carona_api.model.Usuario;
+import com.generation.carona_api.model.UsuarioLogin;
+import com.generation.carona_api.security.AutenticacaoAtual;
 import com.generation.carona_api.service.UsuarioService;
 
 import jakarta.validation.Valid;
@@ -29,52 +29,29 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioService usuarioService;
 
-	@GetMapping("/all")
-	public ResponseEntity<List<Usuario>> getAll() {
-		return ResponseEntity.ok(usuarioService.getAll());
+	@Autowired
+	private AutenticacaoAtual autenticacaoAtual;
 
-	}
-
+	// Autenticado (ver SecurityConfig: só /logar e /cadastrar são
+	// públicos) — quem está logado pode ver o perfil de qualquer usuário
+	// pelo id, igual ao mock.
 	@GetMapping("/{id}")
-	public ResponseEntity<Usuario> getById(@PathVariable Long id) {
-		return usuarioService.getById(id).map(resposta -> ResponseEntity.ok(resposta))
-				.orElse(ResponseEntity.notFound().build());
+	public ResponseEntity<UsuarioPublicoDTO> getById(@PathVariable Long id) {
+		return ResponseEntity.ok(usuarioService.getById(id));
 	}
 
 	@PostMapping("/cadastrar")
-
-	public ResponseEntity<Usuario> post(@Valid @RequestBody Usuario usuario) {
-
-		return usuarioService.cadastrarUsuario(usuario)
-
-				.map(resposta -> ResponseEntity.status(HttpStatus.CREATED).body(resposta))
-
-				.orElse(ResponseEntity.badRequest().build());
-
+	public ResponseEntity<UsuarioPublicoDTO> cadastrar(@RequestBody Usuario usuario) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.cadastrar(usuario));
 	}
 
 	@PostMapping("/logar")
-
-	public ResponseEntity<UsuarioLogin> autenticar(@Valid @RequestBody Optional<UsuarioLogin> usuarioLogin) {
-
-		return usuarioService.autenticarUsuario(usuarioLogin)
-
-				.map(resposta -> ResponseEntity.status(HttpStatus.OK).body(resposta))
-
-				.orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-
+	public ResponseEntity<UsuarioLogin> autenticar(@RequestBody UsuarioLogin usuarioLogin) {
+		return ResponseEntity.ok(usuarioService.autenticar(usuarioLogin.getUsuario(), usuarioLogin.getSenha()));
 	}
 
 	@PutMapping("/atualizar")
-
-	public ResponseEntity<Usuario> put(@Valid @RequestBody Usuario usuario) {
-
-		return usuarioService.atualizarUsuario(usuario)
-
-				.map(resposta -> ResponseEntity.status(HttpStatus.OK).body(resposta))
-
-				.orElse(ResponseEntity.notFound().build());
-
+	public ResponseEntity<UsuarioPublicoDTO> atualizar(@Valid @RequestBody AtualizarUsuarioRequest dados) {
+		return ResponseEntity.ok(usuarioService.atualizar(dados, autenticacaoAtual.obter()));
 	}
-
 }

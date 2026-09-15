@@ -29,11 +29,12 @@ public class SecurityConfig {
         "/usuarios/logar",
         "/usuarios/cadastrar",
         "/error/**",
-        "/", 
-        "/docs", 
-        "/swagger-ui/**", 
-        "/v3/api-docs/**", 
-        "/swagger-resources/**"
+        "/",
+        "/docs",
+        "/swagger-ui/**",
+        "/v3/api-docs/**",
+        "/swagger-resources/**",
+        "/h2-console/**"
     };
 
     @Autowired
@@ -91,6 +92,11 @@ public class SecurityConfig {
             )
 
             .csrf(csrf -> csrf.disable())
+
+            // O console do H2 (só existe no profile "dev") roda dentro de
+            // um <iframe> — sem isso o navegador bloqueia por causa do
+            // X-Frame-Options: DENY padrão do Spring Security.
+            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
 
             .cors(cors ->
                 cors.configurationSource(corsConfigurationSource())

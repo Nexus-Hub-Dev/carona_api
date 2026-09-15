@@ -1,10 +1,11 @@
 package com.generation.carona_api.model;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -21,31 +23,41 @@ import jakarta.validation.constraints.Size;
 @Entity
 @Table(name = "tb_usuarios")
 public class Usuario {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
+	// Identidade: três campos de nome em vez de um só "nome" — nomeReal é
+	// o nome verdadeiro; nomeSocial e comoChamar são opcionais. O nome de
+	// exibição (usado em toda a UI) é calculado, nunca armazenado — ver
+	// getNome().
 	@NotBlank(message = "O Atributo Nome é Obrigatório!")
 	@Column(length = 255)
-	private String nome;
-	
+	private String nomeReal;
+
+	@Column(length = 255)
+	private String nomeSocial;
+
+	@Column(length = 255)
+	private String comoChamar;
+
 	@NotBlank(message = "O Atributo celular é Obrigatório!")
-	@Size(min = 11, message = "O número de celular deve conter exatamente 11 dígitos e não pode conter caracteres especiais")
-	@Column(length = 11)
+	// O front envia o celular formatado ("(11) 91234-5678"), não só
+	// dígitos — por isso sem @Size fixo e com coluna mais larga.
+	@Column(length = 20)
 	private String celular;
-	
-	@Schema(example = "email@email.com.br")
+
 	@NotBlank(message = "O Atributo Usuário é Obrigatório!")
 	@Email(message = "O Atributo Usuário deve ser um email válido!")
 	@Column(length = 255)
 	private String usuario;
-	
+
 	@NotBlank(message = "O Atributo Senha é Obrigatório!")
 	@Size(min = 8, message = "A Senha deve ter no mínimo 8 caracteres")
 	@Column(length = 255)
 	private String senha;
-	
+
 	@Size(max = 5000, message = "O link da foto não pode ser maior do que 5000 caracteres")
 	@Column(length = 5000)
 	private String foto;
@@ -53,7 +65,11 @@ public class Usuario {
 	@NotBlank(message = "O Atributo Gênero é Obrigatório!")
 	@Column(length = 50)
 	private String genero;
-	
+
+	// Usada só para calcular a idade (getIdade()) — não há regra de
+	// negócio no back que dependa diretamente da data em si.
+	private LocalDate dataNascimento;
+
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "usuario", cascade = CascadeType.REMOVE)
 	@JsonIgnoreProperties(value = "usuario", allowSetters = true)
 	private List<Viagem> viagem;
@@ -74,12 +90,51 @@ public class Usuario {
 		this.id = id;
 	}
 
-	public String getNome() {
-		return nome;
+	public String getNomeReal() {
+		return nomeReal;
 	}
 
-	public void setNome(String nome) {
-		this.nome = nome;
+	public void setNomeReal(String nomeReal) {
+		this.nomeReal = nomeReal;
+	}
+
+	public String getNomeSocial() {
+		return nomeSocial;
+	}
+
+	public void setNomeSocial(String nomeSocial) {
+		this.nomeSocial = nomeSocial;
+	}
+
+	public String getComoChamar() {
+		return comoChamar;
+	}
+
+	public void setComoChamar(String comoChamar) {
+		this.comoChamar = comoChamar;
+	}
+
+	// Nome de exibição: comoChamar, senão nomeSocial, senão nomeReal —
+	// mesma prioridade usada no mock (nomeExibicao) e no restante do app.
+	@Transient
+	public String getNome() {
+		if (comoChamar != null && !comoChamar.isBlank()) return comoChamar;
+		if (nomeSocial != null && !nomeSocial.isBlank()) return nomeSocial;
+		return nomeReal;
+	}
+
+	public LocalDate getDataNascimento() {
+		return dataNascimento;
+	}
+
+	public void setDataNascimento(LocalDate dataNascimento) {
+		this.dataNascimento = dataNascimento;
+	}
+
+	@Transient
+	public Integer getIdade() {
+		if (dataNascimento == null) return null;
+		return Period.between(dataNascimento, LocalDate.now()).getYears();
 	}
 
 	public String getUsuario() {
@@ -120,5 +175,5 @@ public class Usuario {
 
 	public void setViagem(List<Viagem> viagem) {
 		this.viagem = viagem;
-	}	
+	}
 }

@@ -13,8 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,38 +26,40 @@ public class Viagem {
 	private Long id;
 
 	@NotBlank(message = "O atributo partida é obrigatório!")
-	@Size(min = 3, max = 80, message = "O atributo partida deve ter no mínimo 3 e no máximo 80 caracteres")
-	@Column(length = 80)
+	@Size(min = 3, max = 120, message = "O atributo partida deve ter no mínimo 3 e no máximo 120 caracteres")
+	@Column(length = 120)
 	private String partida;
 
 	@NotBlank(message = "O atributo destino é obrigatório!")
-	@Size(min = 3, max = 80, message = "O atributo destino deve ter no mínimo 3 e no máximo 80 caracteres")
-	@Column(length = 80)
+	@Size(min = 3, max = 120, message = "O atributo destino deve ter no mínimo 3 e no máximo 120 caracteres")
+	@Column(length = 120)
 	private String destino;
-	
-	 @Column(name = "disponivel_pcd")
-	    private boolean disponivelPCD; // true = motorista aceita passageiros PCD nessa viagem
 
-	    public boolean isDisponivelPCD() {
-	        return disponivelPCD;
-	    }
+	@Column(length = 120)
+	private String bairroDestino;
 
-	    public void setDisponivelPCD(boolean disponivelPCD) {
-	        this.disponivelPCD = disponivelPCD;
-	    }
-	    
-	    @Column
-	    private Double valorSugerido;
+	@Column(name = "disponivel_pcd")
+	private boolean disponivelPCD; // true = motorista aceita passageiros PCD nessa viagem
 
-	    public Double getValorSugerido() {
-	        return valorSugerido;
-	    }
+	@Column(name = "apenas_mulheres")
+	@NotNull(message = "O atributo apenasMulheres é obrigatório!")
+	private Boolean apenasMulheres;
 
-	    public void setValorSugerido(Double valorSugerido) {
-	        this.valorSugerido = valorSugerido;
-	    }
+	@Column(name = "aceita_pet")
+	private boolean aceitaPet;
 
-	@FutureOrPresent(message = "A data deve ser futura ou presente")
+	// Quantas vagas o motorista ofereceu ao criar a viagem. Quantas ainda
+	// restam é calculado a partir das reservas aceitas (ver
+	// ReservaService/ViagemResponseDTO) — não é uma coluna própria.
+	@NotNull(message = "O atributo vagasDisponiveis é obrigatório!")
+	private Integer vagasDisponiveis;
+
+	@Column
+	private Double valorSugerido;
+
+	// Sem @FutureOrPresent: os dados de demonstração (seed) usam sempre
+	// "hoje" para que uma busca com a data em branco os encontre; validar
+	// data futura fica por conta do front (min no <input type="date">).
 	@NotNull
 	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private LocalDateTime data;
@@ -76,10 +76,6 @@ public class Viagem {
 	@Column
 	private Integer velocidadeMedia;
 
-	@NotNull(message = "O atributo apenasMulheres é obrigatório!")
-	@Column(name = "apenas_mulheres")
-	private Boolean apenasMulheres;
-
 	@Column
 	private Double latitudePartida;
 
@@ -91,7 +87,7 @@ public class Viagem {
 
 	@Column
 	private Double longitudeDestino;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
 	@JsonIgnoreProperties(value = "viagem", allowSetters = true)
@@ -126,6 +122,46 @@ public class Viagem {
 
 	public void setDestino(String destino) {
 		this.destino = destino;
+	}
+
+	public String getBairroDestino() {
+		return bairroDestino;
+	}
+
+	public void setBairroDestino(String bairroDestino) {
+		this.bairroDestino = bairroDestino;
+	}
+
+	public boolean isDisponivelPCD() {
+		return disponivelPCD;
+	}
+
+	public void setDisponivelPCD(boolean disponivelPCD) {
+		this.disponivelPCD = disponivelPCD;
+	}
+
+	public boolean isAceitaPet() {
+		return aceitaPet;
+	}
+
+	public void setAceitaPet(boolean aceitaPet) {
+		this.aceitaPet = aceitaPet;
+	}
+
+	public Integer getVagasDisponiveis() {
+		return vagasDisponiveis;
+	}
+
+	public void setVagasDisponiveis(Integer vagasDisponiveis) {
+		this.vagasDisponiveis = vagasDisponiveis;
+	}
+
+	public Double getValorSugerido() {
+		return valorSugerido;
+	}
+
+	public void setValorSugerido(Double valorSugerido) {
+		this.valorSugerido = valorSugerido;
 	}
 
 	public LocalDateTime getData() {

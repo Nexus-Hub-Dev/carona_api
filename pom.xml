@@ -86,10 +86,12 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 		</dependency>
+		<!-- Sem <scope>: além de testes, também roda no perfil "dev" local
+			(ver application-dev.properties), sem precisar instalar MySQL. -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<scope>test</scope>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- Dependência para Geração do Swagger (Documentação) -->

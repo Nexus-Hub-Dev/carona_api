@@ -1,16 +1,15 @@
 package com.generation.carona_api.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.generation.carona_api.dto.AtualizarUsuarioRequest;
+import com.generation.carona_api.dto.UsuarioPublicoDTO;
 import com.generation.carona_api.model.Usuario;
 import com.generation.carona_api.model.UsuarioLogin;
 import com.generation.carona_api.repository.UsuarioRepository;
@@ -26,86 +25,89 @@ public class UsuarioService {
 	private JwtService jwtService;
 
 	@Autowired
-	private AuthenticationManager authenticationManager;
-
-	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	public List<Usuario> getAll() {
-		return usuarioRepository.findAll();
+	public UsuarioPublicoDTO getById(Long id) {
+		return usuarioRepository.findById(id)
+				.map(UsuarioPublicoDTO::de)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
 	}
 
-	public Optional<Usuario> getById(Long id) {
-		return usuarioRepository.findById(id);
-	}
-
-	public Optional<Usuario> cadastrarUsuario(Usuario usuario) {
+	// Mesmos campos obrigatórios do mock: nomeReal, usuario, senha,
+	// celular, gênero e data de nascimento.
+	public UsuarioPublicoDTO cadastrar(Usuario usuario) {
+		if (isBlank(usuario.getNomeReal()) || isBlank(usuario.getUsuario()) || isBlank(usuario.getSenha())
+				|| isBlank(usuario.getCelular()) || isBlank(usuario.getGenero()) || usuario.getDataNascimento() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"Nome real, e-mail, senha, celular, gênero e data de nascimento são obrigatórios.");
+		}
 
 		if (usuarioRepository.findByUsuario(usuario.getUsuario()).isPresent()) {
-			return Optional.empty();
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "Este e-mail já está cadastrado.");
 		}
 
-		usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
 		usuario.setId(null);
-
-		return Optional.of(usuarioRepository.save(usuario));
-
-	}
-
-	public Optional<Usuario> atualizarUsuario(Usuario usuario) {
-
-		if (usuarioRepository.findById(usuario.getId()).isEmpty()) {
-			return Optional.empty();
-		}
-
-		Optional<Usuario> usuarioExistente = usuarioRepository.findByUsuario(usuario.getUsuario());
-
-		if (usuarioExistente.isPresent() && !usuarioExistente.get().getId().equals(usuario.getId()))
-
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O e-mail já está em uso!", null);
-
 		usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
-
-		return Optional.ofNullable(usuarioRepository.save(usuario));
-
+		Usuario salvo = usuarioRepository.save(usuario);
+		return UsuarioPublicoDTO.de(salvo);
 	}
 
-	public Optional<UsuarioLogin> autenticarUsuario(Optional<UsuarioLogin> usuarioLogin) {
+	// Autenticação simples por e-mail/senha (sem AuthenticationManager):
+	// evita depender do fluxo padrão do Spring Security pra permitir a
+	// mesma mensagem de erro única do mock ("Usuário ou senha
+	// inválidos.") tanto pra e-mail inexistente quanto pra senha errada.
+	public UsuarioLogin autenticar(String emailDigitado, String senhaDigitada) {
+		Usuario usuario = usuarioRepository.findByUsuario(emailDigitado)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha inválidos."));
 
-		if (usuarioLogin.isEmpty()) {
-			return Optional.empty();
+		if (senhaDigitada == null || !passwordEncoder.matches(senhaDigitada, usuario.getSenha())) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha inválidos.");
 		}
 
-		UsuarioLogin login = usuarioLogin.get();
+		UsuarioLogin resposta = new UsuarioLogin();
+		resposta.setId(usuario.getId());
+		resposta.setNome(usuario.getNome());
+		resposta.setNomeReal(usuario.getNomeReal());
+		resposta.setNomeSocial(usuario.getNomeSocial());
+		resposta.setComoChamar(usuario.getComoChamar());
+		resposta.setUsuario(usuario.getUsuario());
+		resposta.setCelular(usuario.getCelular());
+		resposta.setFoto(usuario.getFoto());
+		resposta.setGenero(usuario.getGenero());
+		resposta.setDataNascimento(usuario.getDataNascimento());
+		resposta.setIdade(usuario.getIdade());
+		resposta.setSenha("");
+		resposta.setToken("Bearer " + jwtService.generateToken(usuario.getUsuario()));
+		return resposta;
+	}
 
-		try {
+	// Atualização PARCIAL — só os campos enviados mudam. "senha" aqui não
+	// troca a senha: é a senha ATUAL, pra confirmar que quem está editando
+	// é o dono da conta (mesma regra do mock).
+	public UsuarioPublicoDTO atualizar(AtualizarUsuarioRequest dados, Usuario autenticado) {
+		Long idAlvo = dados.id() != null ? dados.id() : autenticado.getId();
 
-			authenticationManager
-					.authenticate(new UsernamePasswordAuthenticationToken(login.getUsuario(), login.getSenha()));
+		Usuario alvo = usuarioRepository.findById(idAlvo)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
 
-			return usuarioRepository.findByUsuario(login.getUsuario())
-					.map(usuario -> construirRespostaLogin(login, usuario));
-
-		} catch (Exception e) {
-
-			return Optional.empty();
-
+		if (!passwordEncoder.matches(Optional.ofNullable(dados.senha()).orElse(""), alvo.getSenha())) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Senha atual incorreta.");
 		}
+
+		if (dados.nomeReal() != null) alvo.setNomeReal(dados.nomeReal());
+		if (dados.nomeSocial() != null) alvo.setNomeSocial(dados.nomeSocial());
+		if (dados.comoChamar() != null) alvo.setComoChamar(dados.comoChamar());
+		if (dados.usuario() != null) alvo.setUsuario(dados.usuario());
+		if (dados.celular() != null) alvo.setCelular(dados.celular());
+		if (dados.foto() != null) alvo.setFoto(dados.foto());
+		if (dados.genero() != null) alvo.setGenero(dados.genero());
+		if (dados.dataNascimento() != null) alvo.setDataNascimento(dados.dataNascimento());
+
+		Usuario salvo = usuarioRepository.save(alvo);
+		return UsuarioPublicoDTO.de(salvo);
 	}
 
-	private UsuarioLogin construirRespostaLogin(UsuarioLogin usuarioLogin, Usuario usuario) {
-
-		usuarioLogin.setId(usuario.getId());
-		usuarioLogin.setNome(usuario.getNome());
-		usuarioLogin.setFoto(usuario.getFoto());
-		usuarioLogin.setSenha("");
-		usuarioLogin.setToken(gerarToken(usuario.getUsuario()));
-		return usuarioLogin;
-
+	private boolean isBlank(String texto) {
+		return texto == null || texto.isBlank();
 	}
-
-	private String gerarToken(String usuario) {
-		return "Bearer " + jwtService.generateToken(usuario);
-	}
-
 }

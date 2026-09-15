@@ -9,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -50,9 +52,28 @@ public class Veiculo {
 	@Column(name = "acessivel_pcd")
 	private Boolean acessivelPcd;
 
-	@OneToMany
+	// mappedBy="veiculo": sem isso o Hibernate cria uma tabela de junção
+	// à parte (tb_veiculos_viagem) em vez de usar a FK veiculo_id que já
+	// existe em tb_viagem.
+	@OneToMany(mappedBy = "veiculo")
 	@JsonIgnoreProperties("veiculo")
 	private List<Viagem> viagem;
+
+	// Dono do veículo — não existia no repositório original (por isso
+	// ninguém filtrava por dono). Nunca serializado direto: as respostas
+	// usam VeiculoResumoDetalhadoDTO.
+	@ManyToOne
+	@JoinColumn(name = "usuario_id")
+	@JsonIgnoreProperties(value = { "viagem", "senha" }, allowSetters = true)
+	private Usuario usuario;
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
 
 	public Long getId() {
 		return id;
